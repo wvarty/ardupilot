@@ -66,7 +66,7 @@ const AP_Scheduler::Task Plane::scheduler_tasks[] = {
     SCHED_TASK(navigate,               10,    150,  36),
     SCHED_TASK(update_compass,         10,    200,  39),
     SCHED_TASK(read_airspeed,          10,    100,  42),
-    SCHED_TASK(update_alt,             10,    200,  45),
+    SCHED_TASK(update_alt,             20,    200,  45),
     SCHED_TASK(adjust_altitude_target, 10,    200,  48),
 #if ADVANCED_FAILSAFE == ENABLED
     SCHED_TASK(afs_fs_check,           10,    100,  51),

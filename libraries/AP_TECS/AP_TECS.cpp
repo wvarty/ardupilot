@@ -732,7 +732,6 @@ void AP_TECS::_update_throttle_with_airspeed(void)
         float K_STE2Thr = 1 / (timeConstant() * (_STEdot_max - _STEdot_min) / (_THRmaxf - _THRminf_clipped_to_zero));
 
         // Calculate feed-forward throttle
-        float ff_throttle = 0;
         float nomThr = aparm.throttle_cruise * 0.01f;
         const Matrix3f &rotMat = _ahrs.get_rotation_body_to_ned();
         // Use the demanded rate of change of total energy as the feed-forward demand, but add
@@ -740,7 +739,7 @@ void AP_TECS::_update_throttle_with_airspeed(void)
         // drag increase during turns.
         float cosPhi = sqrtf((rotMat.a.y*rotMat.a.y) + (rotMat.b.y*rotMat.b.y));
         STEdot_dem = STEdot_dem + _rollComp * (1.0f/constrain_float(cosPhi * cosPhi , 0.1f, 1.0f) - 1.0f);
-        ff_throttle = nomThr + STEdot_dem * K_STE2Thr;
+        const float ff_throttle = _throttle_ff_filter.apply(nomThr + STEdot_dem / (_STEdot_max - _STEdot_min) * (_THRmaxf - _THRminf_clipped_to_zero));
 
         // Calculate PD + FF throttle
         float throttle_damp = _thrDamp;

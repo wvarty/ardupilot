@@ -429,6 +429,8 @@ private:
     // declares a 5point average filter using floats
     AverageFilterFloat_Size5 _vdot_filter;
 
+    AverageFilterFloat_Size5 _throttle_ff_filter;
+
     // current time constant
     float timeConstant(void) const;
 };
