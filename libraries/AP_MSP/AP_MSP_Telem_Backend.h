@@ -88,6 +88,8 @@ public:
     virtual void msp_displayport_clear_screen();
     virtual void msp_displayport_draw_screen();
     virtual void msp_displayport_write_string(uint8_t col, uint8_t row, bool blink, const char *string);
+    virtual MSP::MSPCommandResult msp_displayport_write_rc_channels();
+    virtual MSP::MSPCommandResult msp_displayport_write_variant();
 #endif
 protected:
     enum msp_packet_type : uint8_t {

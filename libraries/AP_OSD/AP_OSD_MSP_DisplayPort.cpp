@@ -84,6 +84,8 @@ void AP_OSD_MSP_DisplayPort::flush(void)
     // ok done processing displayport data
     // let's process incoming MSP frames (and reply if needed)
     _displayport->process_incoming_data();
+    _displayport->msp_displayport_write_rc_channels();
+    _displayport->msp_displayport_write_variant();
 }
 
 void AP_OSD_MSP_DisplayPort::init_symbol_set(uint8_t *lookup_table, const uint8_t size)

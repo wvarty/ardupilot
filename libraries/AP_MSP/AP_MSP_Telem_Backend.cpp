@@ -1215,6 +1215,65 @@ void AP_MSP_Telem_Backend::msp_displayport_write_string(uint8_t col, uint8_t row
 
     msp_send_packet(MSP_DISPLAYPORT, MSP::MSP_V1, &packet, 4 + len, false);
 }
+
+MSP::MSPCommandResult AP_MSP_Telem_Backend::msp_displayport_write_rc_channels()
+{
+    const RCMapper* rcmap = AP::rcmap();
+    if (rcmap == nullptr) {
+        return MSP_RESULT_ERROR;
+    }
+    uint16_t values[16] = {};
+    rc().get_radio_in(values, ARRAY_SIZE(values));
+
+    const struct PACKED {
+        uint16_t a;
+        uint16_t e;
+        uint16_t r;
+        uint16_t t;
+    } rc {
+        // send only 4 channels, MSP order is AERT
+        // note: rcmap channels start at 1
+        a : values[rcmap->roll()-1],       // A
+        e : values[rcmap->pitch()-1],      // E
+        r : values[rcmap->yaw()-1],        // R
+        t : values[rcmap->throttle()-1]    // T
+    };
+
+    msp_send_packet(MSP_RC, MSP::MSP_V1, &rc, 4 + 8, false);
+
+    return MSP_RESULT_ACK;
+}
+
+MSP::MSPCommandResult AP_MSP_Telem_Backend::msp_displayport_write_variant()
+{
+    const AP_MSP *msp = AP::msp();
+    if (msp == nullptr) {
+        return MSP_RESULT_ERROR;
+    }
+
+    struct msp_fc_variant_t {
+        char flightControlIdentifier[4];
+    } __attribute__ ((packed));
+
+    msp_fc_variant_t variant;
+
+    // do we use backend specific symbols table?
+    if (msp->is_option_enabled(AP_MSP::Option::DISPLAYPORT_BTFL_SYMBOLS)) {
+        variant.flightControlIdentifier[0] = 'B';
+        variant.flightControlIdentifier[1] = 'T';
+        variant.flightControlIdentifier[2] = 'F';
+        variant.flightControlIdentifier[3] = 'L';
+    } else {
+        variant.flightControlIdentifier[0] = 'A';
+        variant.flightControlIdentifier[1] = 'R';
+        variant.flightControlIdentifier[2] = 'D';
+        variant.flightControlIdentifier[3] = 'U';
+    }
+
+    msp_send_packet(MSP_FC_VARIANT, MSP::MSP_V1, &variant, 4 + 4, false);
+
+    return MSP_RESULT_ACK;
+}
 #endif //HAL_WITH_MSP_DISPLAYPORT
 bool AP_MSP_Telem_Backend::displaying_stats_screen() const
 {
